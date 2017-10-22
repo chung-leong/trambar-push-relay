@@ -1,0 +1,21 @@
+{
+  "name": "trambar-push-relay",
+  "version": "1.0.0",
+  "description": "Trambar Push Relay",
+  "author": "Chung Leong <chernyshevsky@hotmail.com>",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {
+    "aws-sdk": "^2.138.0",
+    "bluebird": "^3.5.0",
+    "body-parser": "^1.17.2",
+    "dnscache": "^1.0.1",
+    "express": "^4.15.2",
+    "lodash": "^4.17.4",
+    "moment": "^2.18.1",
+    "pg": "^6.2.2",
+    "pg-pool": "^1.7.1",
+    "request": "^2.81.0"
+  }
+}
