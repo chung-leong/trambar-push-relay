@@ -18,9 +18,8 @@ function Database(client) {
     this.client = client;
 }
 
-Database.open = function() {
-    var db = new Database(pool);
-    return Promise.resolve(db);
+Database.get = function() {
+    return new Database(pool);
 };
 
 Database.prototype.query = function(sql, parameters) {

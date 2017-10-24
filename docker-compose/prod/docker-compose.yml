@@ -1,0 +1,34 @@
+version: "2"
+services:
+  # PostgreSQL database manager
+  postgres:
+    image: postgres
+    volumes:
+      - ${TRAMBAR_PUSH_RELAY_DATABASE_FOLDER}:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${TRAMBAR_PUSH_RELAY_DATABASE_NAME}
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=${TRAMBAR_PUSH_RELAY_DATABASE_ROOT_PASSWORD}
+  # Push relay
+  push_relay:
+    image: trambar/trambar-push-relay-node
+    ports:
+      - 443:443
+    volumes:
+      - ../../docker/node/src:/opt/trambar-push-relay/src
+      - ${TRAMBAR_PUSH_RELAY_SSL_FOLDER}:${TRAMBAR_PUSH_RELAY_SSL_FOLDER}
+    environment:
+      - NODE_PATH=/opt/trambar-push-relay/node_modules:/opt/trambar-push-relay/src:/opt/trambar-push-relay/src/lib
+      - NODE_ENV=production
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=${TRAMBAR_PUSH_RELAY_DATABASE_NAME}
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=${TRAMBAR_PUSH_RELAY_DATABASE_ROOT_PASSWORD}
+      - SSL_PRIVATE_KEY_PATH=${TRAMBAR_PUSH_RELAY_SSL_PRIVATE_KEY_PATH}
+      - SSL_CERTIFICATE_PATH=${TRAMBAR_PUSH_RELAY_SSL_CERTIFICATE_PATH}
+      - GCM_ARN=${TRAMBAR_PUSH_RELAY_GCM_ARN}
+      - APNS_ARN=${TRAMBAR_PUSH_RELAY_APNS_ARN}
+      - WNS_ARN=${TRAMBAR_PUSH_RELAY_WNS_ARN}
+    command: [ nodemon, push-relay.js ]
+    depends_on:
+      - postgres

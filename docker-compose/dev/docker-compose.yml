@@ -1,0 +1,31 @@
+version: "2"
+services:
+  # PostgreSQL database manager
+  postgres:
+    image: postgres
+    volumes:
+      - ${TRAMBAR_PUSH_RELAY_DATABASE_FOLDER}:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${TRAMBAR_PUSH_RELAY_DATABASE_NAME}
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=${TRAMBAR_PUSH_RELAY_DATABASE_ROOT_PASSWORD}
+  # Push relay
+  push_relay:
+    image: trambar-push-relay-node-dev
+    ports:
+      - 8008:80
+    volumes:
+      - ../../docker/node/src:/opt/trambar-push-relay/src
+    environment:
+      - NODE_PATH=/opt/trambar-push-relay/node_modules:/opt/trambar-push-relay/src:/opt/trambar-push-relay/src/lib
+      - NODE_ENV=development
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=${TRAMBAR_PUSH_RELAY_DATABASE_NAME}
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=${TRAMBAR_PUSH_RELAY_DATABASE_ROOT_PASSWORD}
+      - GCM_ARN=${TRAMBAR_PUSH_RELAY_GCM_ARN}
+      - APNS_ARN=${TRAMBAR_PUSH_RELAY_APNS_ARN}
+      - WNS_ARN=${TRAMBAR_PUSH_RELAY_WNS_ARN}
+    command: [ nodemon, push-relay.js ]
+    depends_on:
+      - postgres
