@@ -9,6 +9,8 @@ services:
       - POSTGRES_DB=${TRAMBAR_PUSH_RELAY_DATABASE_NAME}
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=${TRAMBAR_PUSH_RELAY_DATABASE_ROOT_PASSWORD}
+    ports:
+      - 6543:5432
   # Push relay
   push_relay:
     image: trambar-push-relay-node-dev
