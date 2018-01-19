@@ -324,7 +324,9 @@ function updateStatistics(address, messageCounts) {
         var counts = _.uniq(_.values(messageCounts));
         var idsByCount = _.invertBy(messageCounts);
         return Promise.each(counts, (count) => {
-            var ids = _.map(idsByCount[count], parseInt);
+            var ids = _.map(idsByCount[count], (key) => {
+                return parseInt(key);
+            });
             var sql = `
                 UPDATE ${Schema.name}.device
                 SET message_count = message_count + $1
@@ -405,20 +407,27 @@ function sendMessages(device, messages) {
  */
 function sendMessage(device, message) {
     return createEndPoint(device).then((endPointARN) => {
-        var platformMessageBody = message[device.network];
-        var messageBody = {};
+        var platformMessage = message[device.network];
+        if (!platformMessage) {
+            throw new Error(`Missing payload for push network: ${device.network}`);
+        }
         var protocol;
         switch (device.network) {
-            case 'fcm': protocol = 'GCM'; break;
-            case 'apns': protocol = 'APNS'; break;
-            case 'wns': protocol = 'WNS'; break;
+            case 'fcm':
+                protocol = 'GCM';
+                break;
+            case 'apns':
+                protocol = /SANDBOX/.test(APNS_ARN) ? 'APNS_SANDBOX' : 'APNS';
+                break;
+            case 'wns':
+                protocol = 'WNS';
+                break;
         }
-        messageBody[protocol] = JSON.stringify(platformMessageBody);
-        console.log(platformMessageBody);
-        console.log(messageBody, device);
-        var messageJSON = JSON.stringify(messageBody);
+        var snsMessageBody = {};
+        snsMessageBody[protocol] = JSON.stringify(platformMessage.body);
         var params = {
-            Message: messageJSON,
+            Message: JSON.stringify(snsMessageBody),
+            MessageAttributes: platformMessage.attributes,
             MessageStructure: 'json',
             TargetArn: device.endpoint_arn,
         };
