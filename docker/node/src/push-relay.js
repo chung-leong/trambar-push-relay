@@ -424,7 +424,11 @@ function sendMessage(device, message) {
                 break;
         }
         var snsMessageBody = {};
-        snsMessageBody[protocol] = JSON.stringify(platformMessage.body);
+        if (typeof(platformMessage.body) === 'string') {
+            snsMessageBody[protocol] = platformMessage.body;
+        } else {
+            snsMessageBody[protocol] = JSON.stringify(platformMessage.body);
+        }
         var params = {
             Message: JSON.stringify(snsMessageBody),
             MessageAttributes: platformMessage.attributes,
