@@ -13,7 +13,7 @@ services:
   push_relay:
     image: trambar/trambar-push-relay-node
     ports:
-      - 443:443
+      - 8080:80
     volumes:
       - ../../docker/node/src:/opt/trambar-push-relay/src
       - ${TRAMBAR_PUSH_RELAY_SSL_FOLDER}:${TRAMBAR_PUSH_RELAY_SSL_FOLDER}

@@ -1,7 +1,6 @@
 var _ = require('lodash');
 var Promise = require('bluebird');
 var FS = require('fs');
-var HTTPS = require('https');
 var Express = require('express');
 var BodyParser = require('body-parser');
 var DNSCache = require('dnscache');
@@ -44,16 +43,7 @@ function start() {
         app.set('json spaces', 2);
         app.post('/register', handleRegistration);
         app.post('/dispatch', handleDispatch);
-
-        if (SSL_PRIVATE_KEY_PATH && SSL_CERTIFICATE_PATH) {
-            var credentials = {
-                key: FS.readFileSync(SSL_PRIVATE_KEY_PATH),
-                cert: FS.readFileSync(SSL_CERTIFICATE_PATH),
-            };
-            server = HTTPS.createServer(credentials, app);
-        } else {
-            server = app.listen(80);
-        }
+        server = app.listen(80);
         createSchema();
     });
 }
