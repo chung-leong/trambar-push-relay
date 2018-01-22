@@ -2,6 +2,7 @@ version: "2"
 services:
   # PostgreSQL database manager
   postgres:
+    restart: always
     image: postgres
     volumes:
       - ${TRAMBAR_PUSH_RELAY_DATABASE_FOLDER}:/var/lib/postgresql/data
@@ -11,6 +12,7 @@ services:
       - POSTGRES_PASSWORD=${TRAMBAR_PUSH_RELAY_DATABASE_ROOT_PASSWORD}
   # Push relay
   push_relay:
+    restart: always
     image: trambar/trambar-push-relay-node
     ports:
       - 8080:80
