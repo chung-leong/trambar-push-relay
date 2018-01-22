@@ -29,6 +29,6 @@ services:
       - FCM_ARN=${TRAMBAR_PUSH_RELAY_FCM_ARN}
       - APNS_ARN=${TRAMBAR_PUSH_RELAY_APNS_ARN}
       - WNS_ARN=${TRAMBAR_PUSH_RELAY_WNS_ARN}
-    command: [ nodemon, push-relay.js ]
+    command: [ node, push-relay.js ]
     depends_on:
       - postgres
