@@ -11,14 +11,11 @@ var AWS = require('aws-sdk');
 var CORS = require('cors');
 var Database = require('database');
 var Schema = require('schema');
-var HttpError = require('http-error');
+var HTTPError = require('http-error');
 
 DNSCache({ enable: true, ttl: 300, cachesize: 1000 });
 
 var FIFTEEN_MINUTE_RATE_LIMIT = parseInt(process.env.RATE_LIMIT) || 50000;
-
-var SSL_PRIVATE_KEY_PATH = process.env.SSL_PRIVATE_KEY_PATH;
-var SSL_CERTIFICATE_PATH = process.env.SSL_CERTIFICATE_PATH;
 
 var FCM_ARN = process.env.FCM_ARN;
 var APNS_ARN = process.env.APNS_ARN;
@@ -140,10 +137,10 @@ function handleRegistration(req, res) {
         var details = req.body.details || {};
         var address = req.body.address || null;
         if (!registrationId) {
-            throw new HttpError(400);
+            throw new HTTPError(400);
         }
         if (!_.includes([ 'fcm', 'apns', 'wns' ], network)) {
-            throw new HttpError(400);
+            throw new HTTPError(400);
         }
         return Crypto.randomBytesAsync(16).then((buffer) => {
             var token = buffer.toString('hex');
@@ -177,7 +174,7 @@ function handleDispatch(req, res) {
         var address = req.body.address;
         var messages = req.body.messages;
         if (!signature || !address || !messages) {
-            throw new HttpError(400);
+            throw new HTTPError(400);
         }
         return confirmSignature(address, signature).then(() => {
             return checkRateLimit(address, messages.length).then(() => {
@@ -328,9 +325,30 @@ function updateStatistics(address, messageCounts) {
     });
 }
 
+var confirmedSignaturesByDomain = {};
+
 function confirmSignature(address, signature) {
-    // TODO
-    return Promise.resolve();
+    var confirmedSignature = messageCountsByDomain[address];
+    if (confirmedSignature && confirmedSignature === signature) {
+        return Promise.resolve();
+    }
+    return new Promise((resolve, reject) => {
+        var options = {
+            json: true,
+            body: { signature },
+            url: `${address}/push/signature`,
+            method: 'post',
+        };
+        Request(options, (err, resp, body) => {
+            if (resp && resp.statusCode === 200) {
+                confirmedSignaturesByDomain[address] = signature;
+                resolve();
+            } else {
+                console.log(`Unable to confirm server siganture: ${address}`);
+                reject(new HTTPError(403));
+            }
+        });
+    });
 }
 
 var messageCountsByDomain = {};
@@ -356,7 +374,7 @@ function checkRateLimit(address, additional) {
         messageCountsByDomain[address] = currentCount + additional;
         return Promise.resolve();
     } else {
-        return Promise.reject(new HttpError(429));
+        return Promise.reject(new HTTPError(429));
     }
 }
 
