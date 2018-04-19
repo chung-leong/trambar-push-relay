@@ -331,7 +331,7 @@ function confirmSignature(address, signature) {
     var confirmedSignature = confirmedSignaturesByDomain[address];
     if (confirmedSignature && confirmedSignature === signature) {
         return Promise.resolve();
-    } else if (/^https?:\/\/192.168/.test(signature)) {
+    } else if (/^https?:\/\/192\.168\./.test(signature)) {
         // don't require confirmation when it's a private network
         return Promise.resolve();
     }
