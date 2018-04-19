@@ -328,15 +328,18 @@ function updateStatistics(address, messageCounts) {
 var confirmedSignaturesByDomain = {};
 
 function confirmSignature(address, signature) {
-    var confirmedSignature = messageCountsByDomain[address];
+    var confirmedSignature = confirmedSignaturesByDomain[address];
     if (confirmedSignature && confirmedSignature === signature) {
+        return Promise.resolve();
+    } else if (/^https?:\/\/192.168/.test(signature)) {
+        // don't require confirmation when it's a private network
         return Promise.resolve();
     }
     return new Promise((resolve, reject) => {
         var options = {
             json: true,
             body: { signature },
-            url: `${address}/push/signature`,
+            url: `${address}/srv/push/signature`,
             method: 'post',
         };
         Request(options, (err, resp, body) => {
