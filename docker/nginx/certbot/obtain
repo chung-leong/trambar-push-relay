@@ -7,7 +7,7 @@ fi
 # wait for Nginx to come online
 sleep 1
 
-certbot certonly --non-interactive --agree-tos --email ${EMAIL} --webroot --webroot-path /var/www/letsencrypt --domains ${DOMAIN}
+certbot certonly --non-interactive --agree-tos --email ${EMAIL} --webroot --webroot-path /var/www/certbot --domains ${DOMAIN}
 
 # add certs to nginx config
 mkdir -p /etc/nginx/extra/default
