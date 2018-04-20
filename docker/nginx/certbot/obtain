@@ -10,6 +10,7 @@ sleep 1
 certbot certonly --non-interactive --agree-tos --email ${EMAIL} --webroot --webroot-path /var/www/letsencrypt --domains ${DOMAIN}
 
 # add certs to nginx config
+mkdir -p /etc/nginx/extra/default
 cat > /etc/nginx/extra/default/ssl.conf << EOF
 listen 443 ssl http2;
 server_name ${DOMAIN};
