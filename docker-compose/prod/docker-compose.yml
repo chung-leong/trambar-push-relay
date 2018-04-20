@@ -1,5 +1,17 @@
 version: "2"
 services:
+  # Nginx
+  nginx:
+    restart: always
+    image: trambar/trambar-push-relay-nginx
+    environment:
+      - DOMAIN=${TRAMBAR_PUSH_RELAY_DOMAIN}
+      - EMAIL=${TRAMBAR_PUSH_RELAY_EMAIL}
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - push_relay
   # PostgreSQL database manager
   postgres:
     restart: always
@@ -14,8 +26,6 @@ services:
   push_relay:
     restart: always
     image: trambar/trambar-push-relay-node
-    ports:
-      - 8080:80
     environment:
       - NODE_PATH=/opt/trambar-push-relay/node_modules:/opt/trambar-push-relay/src:/opt/trambar-push-relay/src/lib
       - NODE_ENV=production
