@@ -20,7 +20,6 @@ COPY conf.d /etc/nginx/conf.d
 
 # create folders for certbot
 RUN mkdir -p /var/www/certbot
-RUN mkdir -p /var/log/certbot
 
 # launch cron, script for obtaining certificates, and nginx
 CMD cron & /opt/certbot/obtain & nginx -g "daemon off;"

@@ -1,1 +1,1 @@
-52 3,15 * * * /opt/certbot/renew >> /var/log/certbot/renew.log 
+52 3,15 * * * root /opt/certbot/renew >> /dev/null
