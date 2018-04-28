@@ -8,7 +8,7 @@ services:
       - DOMAIN=${TRAMBAR_PUSH_RELAY_DOMAIN}
       - EMAIL=${TRAMBAR_PUSH_RELAY_EMAIL}
     volumes:
-      - /etc/letsencrypt
+      - ./certbot:/etc/letsencrypt
     ports:
       - 80:80
       - 443:443

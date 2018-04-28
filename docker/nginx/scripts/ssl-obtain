@@ -1,0 +1,27 @@
+#!/bin/bash
+
+activate_ssl() {
+  # add certs to nginx config
+  export CERT_PATH=/etc/letsencrypt/live/${DOMAIN}/fullchain.pem
+  export KEY_PATH=/etc/letsencrypt/live/${DOMAIN}/privkey.pem
+  ssl-config
+
+  # load new configuration
+  service nginx reload
+}
+
+obtain_cert() {
+  # wait for Nginx to come online
+  sleep 1
+  certbot certonly --non-interactive --agree-tos --email ${EMAIL} --webroot --webroot-path /var/www/certbot --domains ${DOMAIN}
+}
+
+if [[ -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem && -f /etc/letsencrypt/live/${DOMAIN}/privkey.pem ]]; then
+  if [ ! -f /etc/nginx/conf.d/default.d/ssl.conf ]; then
+    activate_ssl
+  fi
+  exit 0
+fi
+
+obtain_cert
+activate_ssl

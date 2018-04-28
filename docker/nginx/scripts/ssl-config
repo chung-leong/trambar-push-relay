@@ -1,0 +1,25 @@
+#!/bin/bash
+
+config_folder=/etc/nginx/conf.d/default.d
+config_file=${config_folder}/ssl.conf
+
+write_ssl_conf() {
+    cat > ${config_file} << EOF
+listen 443 ssl http2;
+server_name ${DOMAIN};
+ssl_certificate     ${CERT_PATH};
+ssl_certificate_key ${KEY_PATH};
+
+if (\$scheme = http) {
+    return 301 https://\$host\$request_uri;
+}
+EOF
+}
+
+if [[ -f ${CERT_PATH} && -f ${KEY_PATH} ]]; then
+    mkdir -p ${config_folder}
+    write_ssl_conf
+    chmod 600 ${config_file}
+else
+    rm -f ${config_file}
+fi
