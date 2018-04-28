@@ -12,8 +12,8 @@ ADD crontab /etc/cron.d/certbot
 RUN chmod 0644 /etc/cron.d/certbot
 
 # copy shell scripts
-COPY certbot /opt/certbot
-RUN chmod 0744 /opt/certbot/*
+COPY scripts/ssl-* /usr/local/bin/
+RUN chmod 744 /usr/local/bin/ssl-*
 
 # copy Nginx config
 COPY conf.d /etc/nginx/conf.d
