@@ -22,4 +22,4 @@ COPY conf.d /etc/nginx/conf.d
 RUN mkdir -p /var/www/certbot
 
 # launch cron, script for obtaining certificates, and nginx
-CMD cron & /opt/certbot/obtain & nginx -g "daemon off;"
+CMD cron & ssl-obtain & nginx -g "daemon off;"
