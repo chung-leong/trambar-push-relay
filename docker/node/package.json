@@ -1,9 +1,11 @@
 {
   "name": "trambar-push-relay",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Trambar Push Relay",
   "author": "Chung Leong <chernyshevsky@hotmail.com>",
   "license": "MIT",
+  "repository": "git://github.com/chung-leong/trambar-push-relay.git",
+  "homepage": "https://github.com/chung-leong/trambar-push-relay",
   "main": "index.js",
   "scripts": {},
   "dependencies": {

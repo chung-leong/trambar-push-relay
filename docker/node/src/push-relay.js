@@ -354,8 +354,10 @@ function confirmSignature(address, signature) {
     });
 }
 
-var messageCountsByDomain = {};
-var previousPeriod = getTimeRoundedTo15Min();
+var dailyMessageCounts = {};
+var rateLimitMessageCounts = {};
+var previousDate = Moment().startOf('day').toISOString();
+var previousRateLimitPeriod = getTimeRoundedTo15Min();
 
 /**
  * Reject with HTTP status code 429 if too many messages have been sent from
@@ -367,14 +369,22 @@ var previousPeriod = getTimeRoundedTo15Min();
  * @return {Promise}
  */
 function checkRateLimit(address, additional) {
-    var currentPeriod = getTimeRoundedTo15Min();
-    if (previousPeriod !== currentPeriod) {
-        messageCountsByDomain = {};
-        currentPeriod = previousPeriod;
+    var currentDate = Moment().startOf('day').toISOString();
+    if (previousDate !== currentDate) {
+        dailyMessageCounts = {};
+        previousDate = currentDate;
     }
-    var currentCount = messageCountsByDomain[address] || 0;
-    if (currentCount + additional < FIFTEEN_MINUTE_RATE_LIMIT) {
-        messageCountsByDomain[address] = currentCount + additional;
+    var currentRateLimitPeriod = getTimeRoundedTo15Min();
+    if (previousRateLimitPeriod !== currentRateLimitPeriod) {
+        rateLimitMessageCounts = {};
+        currentRateLimitPeriod = previousRateLimitPeriod;
+    }
+
+    var currentDailyCount = dailyMessageCounts[address] || 0;
+    var currentRateLimitCount = rateLimitMessageCounts[address] || 0;
+    if (currentRateLimitCount + additional < FIFTEEN_MINUTE_RATE_LIMIT) {
+        dailyMessageCounts[address] = currentDailyCount + additional;
+        rateLimitMessageCounts[address] = currentRateLimitCount + additional;
         return Promise.resolve();
     } else {
         return Promise.reject(new HTTPError(429));
@@ -509,6 +519,19 @@ function updateDeviceEndpoint(device, endPointARN) {
     });
 }
 
+/**
+ * Dump statistics concerning usage to console
+ */
+function printStatistics() {
+    var now = Moment().toISOString();
+    console.log(`${previousDate} - ${now}`);
+    console.log(`---------------------------------------------------`);
+    var addresses = _.sortBy(_.keys(dailyMessageCounts));
+    _.each(addresses, (address) => {
+        console.log(`${address}: ${dailyMessageCounts[address]}`);
+    });
+}
+
 exports.start = start;
 exports.stop = stop;
 
@@ -527,3 +550,7 @@ _.each(['SIGTERM', 'SIGUSR2'], (sig) => {
 process.on('uncaughtException', function(err) {
     console.error(err);
 });
+
+setTimeout(() => {
+    setInterval(printStatistics, 60 * 1000);
+}, (60 - Moment().seconds()) * 1000);
