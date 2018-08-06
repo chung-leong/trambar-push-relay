@@ -19,6 +19,7 @@ var FIFTEEN_MINUTE_RATE_LIMIT = parseInt(process.env.RATE_LIMIT) || 50000;
 
 var FCM_ARN = process.env.FCM_ARN;
 var APNS_ARN = process.env.APNS_ARN;
+var APNS_SANDBOX_ARN = process.env.APNS_SANDBOX_ARN;
 var WNS_ARN = process.env.WNS_ARN;
 
 var SNS = Promise.promisifyAll(new AWS.SNS({ apiVersion: '2010-03-31' }));
@@ -139,7 +140,7 @@ function handleRegistration(req, res) {
         if (!registrationId) {
             throw new HTTPError(400);
         }
-        if (!_.includes([ 'fcm', 'apns', 'wns' ], network)) {
+        if (!_.includes([ 'fcm', 'apns', 'apns-sb', 'wns' ], network)) {
             throw new HTTPError(400);
         }
         return Crypto.randomBytesAsync(16).then((buffer) => {
@@ -438,7 +439,10 @@ function sendMessage(device, message) {
                 protocol = 'GCM';
                 break;
             case 'apns':
-                protocol = /SANDBOX/.test(APNS_ARN) ? 'APNS_SANDBOX' : 'APNS';
+                protocol = 'APNS';
+                break;
+            case 'apns-sb':
+                protocol = 'APNS_SANDBOX';
                 break;
             case 'wns':
                 protocol = 'WNS';
@@ -480,6 +484,9 @@ function createEndPoint(device) {
             break;
         case 'apns':
             applicationARN = APNS_ARN;
+            break;
+        case 'apns-sb':
+            applicationARN = APNS_SANDBOX_ARN;
             break;
         case 'wns':
             applicationARN = WNS_ARN;
